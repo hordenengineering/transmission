@@ -369,6 +369,7 @@ void onStartQueue(tr_session* session, tr_torrent* tor, void* vself)
         [torrent startQueue];
     });
 }
+
 void onIdleLimitHit(tr_session* session, tr_torrent* tor, void* vself)
 {
     auto* controller = (__bridge Controller*)(vself);
@@ -377,6 +378,17 @@ void onIdleLimitHit(tr_session* session, tr_torrent* tor, void* vself)
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [torrent idleLimitHit];
+    });
+}
+
+void onRatioLimitHit(tr_session* session, tr_torrent* tor, void* vself)
+{
+    auto* controller = (__bridge Controller*)(vself);
+    auto const hashstr = @(tr_torrentView(tor).hash_string);
+    auto* torrent = [controller torrentForHash:str];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [torrent ratioLimitHit];
     });
 }
 
@@ -533,8 +545,9 @@ void onIdleLimitHit(tr_session* session, tr_torrent* tor, void* vself)
         _fLib = tr_sessionInit(configDir, YES, &settings);
         tr_variantFree(&settings);
 
-        tr_sessionSetQueueStartCallback(_fLib, onStartQueue, (__bridge void*)(self));
         tr_sessionSetIdleLimitHitCallback(_fLib, onIdleLimitHit, (__bridge void*)(self));
+        tr_sessionSetQueueStartCallback(_fLib, onStartQueue, (__bridge void*)(self));
+        tr_sessionSetRatioLimitHitCallback(_fLib, onRatioLimitHit, (__bridge void*)(self));
 
         _fConfigDirectory = @(configDir);
 
