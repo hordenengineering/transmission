@@ -2953,3 +2953,10 @@ void tr_session::closeTorrentFile(tr_torrent* tor, tr_file_index_t file_num) noe
     this->cache->flushFile(tor, file_num);
     openFiles().closeFile(tor->id(), file_num);
 }
+
+///
+
+void tr_sessionSetQueueStartCallback(tr_session* session, void (*callback)(tr_session*, tr_torrent*), void* user_data)
+{
+    session->setQueueStartCallback(callback, user_data);
+}
